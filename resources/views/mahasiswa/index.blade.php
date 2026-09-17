@@ -16,11 +16,15 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <div class="mb-4">
-                        <a href="{{ route('mahasiswa.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                            + Tambah Data Mahasiswa
-                        </a>
-                    </div>
+                    
+                    <!-- Tombol Tambah Data: Hanya tampil untuk Admin -->
+                    @if(auth()->user()->role === 'admin')
+                        <div class="mb-4">
+                            <a href="{{ route('mahasiswa.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                + Tambah Data Mahasiswa
+                            </a>
+                        </div>
+                    @endif
 
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -29,7 +33,10 @@
                                 <th class="border-b px-4 py-2">Nama</th>
                                 <th class="border-b px-4 py-2">Program Studi</th>
                                 <th class="border-b px-4 py-2">Email</th>
-                                <th class="border-b px-4 py-2 text-center">Aksi</th>
+                            
+                                @if(auth()->user()->role === 'admin')
+                                    <th class="border-b px-4 py-2 text-center">Aksi</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -39,19 +46,25 @@
                                     <td class="border-b px-4 py-2">{{ $mhs->nama }}</td>
                                     <td class="border-b px-4 py-2">{{ $mhs->program_studi }}</td>
                                     <td class="border-b px-4 py-2">{{ $mhs->email }}</td>
-                                    <td class="border-b px-4 py-2 text-center">
-                                        <a href="{{ route('mahasiswa.edit', $mhs->id) }}" class="text-blue-600 hover:underline mr-2">Detail/Edit</a>
-                                        
-                                        <form action="{{ route('mahasiswa.destroy', $mhs->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:underline">Hapus</button>
-                                        </form>
-                                    </td>
+                          
+                                    @if(auth()->user()->role === 'admin')
+                                        <td class="border-b px-4 py-2 text-center">
+                                            <a href="{{ route('mahasiswa.edit', $mhs->id) }}" class="text-blue-600 hover:underline mr-2">Detail/Edit</a>
+                                            
+                                            <form action="{{ route('mahasiswa.destroy', $mhs->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:underline">Hapus</button>
+                                            </form>
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="border-b px-4 py-2 text-center text-gray-500">Tidak ada data mahasiswa.</td>
+                                    <!-- Colspan dinamis: 5 kolom jika Admin, 4 kolom jika Dosen/Mahasiswa -->
+                                    <td colspan="{{ auth()->user()->role === 'admin' ? 5 : 4 }}" class="border-b px-4 py-2 text-center text-gray-500">
+                                        Tidak ada data mahasiswa.
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
